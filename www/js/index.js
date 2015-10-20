@@ -34,6 +34,7 @@ app.on({page: 'home', preventClose: false, content: null}, function(activity) {
  * between the OnCreate and the OnReady callbacks
 */
 app.on({page: 'pagetwo', preventClose: true, content: 'pagetwo.html', readyDelay: 1}, function(activity) {
+	
 
     var onAction = function(evt) {
 		var target = evt.target;
@@ -41,14 +42,36 @@ app.on({page: 'pagetwo', preventClose: true, content: 'pagetwo.html', readyDelay
     };
 
     activity.onCreate(function() {
+		var lat = 0;
+		var lon = 0;
+		var onSuccess = function(position) {
+			lat = position.coords.latitude;
+			lon = position.coords.longitude;
+		};
+
+		// onError Callback receives a PositionError object
+		//
+		function onError(error) {
+			console.log(error.message);
+		}
+
+		navigator.geolocation.getCurrentPosition(onSuccess, onError);
         var req = phonon.ajax({
             method: 'GET',
-            url: 'https://hikeit.me/search/location/Camden.json',
+            url: 'https://hikeit.me/search/latlon/' + lat + '/' + lon + '.json',
             crossDomain: true,
             dataType: 'json',
             success: function(res) {
-                res.forEach(function(obj) { document.getElementById("trails").innerHTML += '<li class="padded-list"><a href="#!trailpage/' + obj.pk + '">' + obj.name + '<a></li>'; });
-            }
+				console.log(res.length);
+				if(res.length == 0) {
+					console.log("nothing. " + 'https://hikeit.me/search/latlon/' + lat + '/' + lon + '.json');
+				} else {
+					res.forEach(function(obj) { document.getElementById("trails").innerHTML += '<li class="padded-list"><a href="#!trailpage/' + obj.pk + '">' + obj.name + '<a></li>'; });
+				}
+            },
+            error: function(err) {
+				console.log(err);
+			}
         });
     });
 

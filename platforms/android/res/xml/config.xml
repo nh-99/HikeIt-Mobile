@@ -6,11 +6,11 @@
         <param name="onload" value="true" />
     </feature>
     <allow-intent href="market:*" />
-    <name>HelloCordova</name>
+    <name>HikeIt</name>
     <description>
-        A sample Apache Cordova application that responds to the deviceready event.
+        HikeIt: Mobilified!
     </description>
-    <author email="dev@cordova.apache.org" href="http://cordova.io">
+    <author email="support@hikeit.me" href="https://hikeit.me">
         Apache Cordova Team
     </author>
     <content src="index.html" />
