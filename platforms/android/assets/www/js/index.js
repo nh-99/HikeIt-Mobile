@@ -38,12 +38,44 @@ app.on({page: 'pagetwo', preventClose: true, content: 'pagetwo.html', readyDelay
             crossDomain: true,
             dataType: 'json',
             success: function(res) {
-                res.forEach(function(obj) { document.getElementById("trails").innerHTML += '<li class="padded-list">' + obj.name + '</li>'; });
+                res.forEach(function(obj) { document.getElementById("trails").innerHTML += '<li class="padded-list"><a href="#!trailpage/' + obj.pk + '">' + obj.name + '<a></li>'; });
             }
         });
     });
 
     activity.onClose(function(self) {
+		self.close();
+    });
+});
+
+app.on({page: 'trailpage', preventClose: true, content: 'trailpage.html', readyDelay: 1}, function(activity) {
+
+    var onAction = function(evt) {
+    };
+
+    activity.onCreate(function() {
+    });
+
+    activity.onClose(function(self) {
+		location.href = "#!pagetwo";
+    });
+    
+    activity.onHashChanged(function(trailid) {
+		console.log(window.localStorage.getItem("token"));
+		var req = phonon.ajax({
+            method: 'GET',
+            headers: {'Authorization': "Token " + window.localStorage.getItem("token")},
+            url: 'https://hikeit.me/trail/' + trailid + '.json',
+            crossDomain: true,
+            dataType: 'json',
+            success: function(res) {
+                document.getElementById("trailinfo").innerHTML = '<li class="padded-list"><b>Name: </b>' + res.name + '</li>';
+                document.getElementById("trailinfo").innerHTML += '<li class="padded-list"><b>Difficulty: </b>' + res.difficulty + '</li>';
+                document.getElementById("trailinfo").innerHTML += '<li class="padded-list"><b>Distance: </b>' + res.distance + '</li>';
+                document.getElementById("trailinfo").innerHTML += '<li class="padded-list"><b>Location: </b>' + res.location + '</li>';
+                document.getElementById("trailinfo").innerHTML += '<li class="padded-list"><b>Description: </b>' + res.description + '</li>';
+            }
+        });
     });
 });
 
