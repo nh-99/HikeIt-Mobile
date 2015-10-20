@@ -16,7 +16,14 @@ var app = phonon.navigator();
  * For the home page, we do not need to perform actions during
  * page events such as onCreate, onReady, etc
 */
-app.on({page: 'home', preventClose: false, content: null});
+app.on({page: 'home', preventClose: false, content: null}, function(activity) {
+	activity.onCreate(function() {
+		console.log(window.localStorage.getItem("token"));
+		if(window.localStorage.getItem("token") != null) {
+			location.href = "#!pagetwo";
+		}
+	});
+});
 
 /**
  * However, on the second page, we want to define the activity scope.
@@ -29,6 +36,8 @@ app.on({page: 'home', preventClose: false, content: null});
 app.on({page: 'pagetwo', preventClose: true, content: 'pagetwo.html', readyDelay: 1}, function(activity) {
 
     var onAction = function(evt) {
+		var target = evt.target;
+		console.log(target);
     };
 
     activity.onCreate(function() {
@@ -54,6 +63,22 @@ app.on({page: 'trailpage', preventClose: true, content: 'trailpage.html', readyD
     };
 
     activity.onCreate(function() {
+		trailid = window.location.hash.split("/")[1];
+		if(trailid == null) { trailid = "1" }
+		var req = phonon.ajax({
+            method: 'GET',
+            headers: {'Authorization': "Token " + window.localStorage.getItem("token")},
+            url: 'https://hikeit.me/trail/' + trailid + '.json',
+            crossDomain: true,
+            dataType: 'json',
+            success: function(res) {
+                document.getElementById("trailinfo").innerHTML = '<li class="padded-list"><b>Name: </b>' + res.name + '</li>';
+                document.getElementById("trailinfo").innerHTML += '<li class="padded-list"><b>Difficulty: </b>' + res.difficulty + '</li>';
+                document.getElementById("trailinfo").innerHTML += '<li class="padded-list"><b>Distance: </b>' + res.distance + '</li>';
+                document.getElementById("trailinfo").innerHTML += '<li class="padded-list"><b>Location: </b>' + res.location + '</li>';
+                document.getElementById("trailinfo").innerHTML += '<li class="padded-list"><b>Description: </b>' + res.description + '</li>';
+            }
+        });
     });
 
     activity.onClose(function(self) {
@@ -61,7 +86,7 @@ app.on({page: 'trailpage', preventClose: true, content: 'trailpage.html', readyD
     });
     
     activity.onHashChanged(function(trailid) {
-		console.log(window.localStorage.getItem("token"));
+		if(trailid == null) { trailid = "1" }
 		var req = phonon.ajax({
             method: 'GET',
             headers: {'Authorization': "Token " + window.localStorage.getItem("token")},
@@ -86,4 +111,18 @@ function login() {
     // Get data ex: var value = window.localStorage.getItem("key");
     window.localStorage.setItem("token", document.getElementById("token").value);
     location.href = "#!pagetwo"
+}
+
+function closest(elem, selector) {
+
+   var matchesSelector = elem.matches || elem.webkitMatchesSelector || elem.mozMatchesSelector || elem.msMatchesSelector;
+
+    while (elem) {
+        if (matchesSelector.bind(elem)(selector)) {
+            return elem;
+        } else {
+            elem = elem.parentElement;
+        }
+    }
+    return false;
 }
