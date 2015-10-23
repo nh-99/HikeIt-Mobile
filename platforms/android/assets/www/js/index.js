@@ -18,9 +18,8 @@ var app = phonon.navigator();
 */
 app.on({page: 'home', preventClose: false, content: null}, function(activity) {
 	activity.onCreate(function() {
-		console.log(window.localStorage.getItem("token"));
 		if(window.localStorage.getItem("token") != null) {
-			location.href = "#!pagetwo";
+			phonon.navigator().changePage('pagetwo');
 		}
 	});
 });
@@ -38,15 +37,34 @@ app.on({page: 'pagetwo', preventClose: true, content: 'pagetwo.html', readyDelay
 
     var onAction = function(evt) {
 		var target = evt.target;
-		console.log(target);
+		search(document.getElementById("searchinput").value);
     };
 
     activity.onCreate(function() {
+		document.querySelector('#search').on('tap', onAction);
 		var lat = 0;
 		var lon = 0;
 		var onSuccess = function(position) {
 			lat = position.coords.latitude;
 			lon = position.coords.longitude;
+			
+			var req = $.ajax({
+				method: 'GET',
+				beforeSend: function(xhr){xhr.setRequestHeader('Authorization',"Token " + window.localStorage.getItem("token"));},
+				url: 'https://hikeit.me/search/latlon/' + lat + '/' + lon + '.json',
+				crossDomain: true,
+				dataType: 'json',
+				success: function(res) {
+					if(res.length == 0) {
+						document.getElementById("trails").innerHTML += '<li class="padded-list">No trails found in your area. Try searching at the top.</li>';
+					} else {
+						res.forEach(function(obj) { document.getElementById("trails").innerHTML += '<li class="padded-list"><a href="#!trailpage/' + obj.pk + '">' + obj.name + '<a></li>'; });
+					}
+				},
+				error: function(err) {
+					console.log(err);
+				}
+			});
 		};
 
 		// onError Callback receives a PositionError object
@@ -56,23 +74,6 @@ app.on({page: 'pagetwo', preventClose: true, content: 'pagetwo.html', readyDelay
 		}
 
 		navigator.geolocation.getCurrentPosition(onSuccess, onError);
-        var req = phonon.ajax({
-            method: 'GET',
-            url: 'https://hikeit.me/search/latlon/' + lat + '/' + lon + '.json',
-            crossDomain: true,
-            dataType: 'json',
-            success: function(res) {
-				console.log(res.length);
-				if(res.length == 0) {
-					console.log("nothing. " + 'https://hikeit.me/search/latlon/' + lat + '/' + lon + '.json');
-				} else {
-					res.forEach(function(obj) { document.getElementById("trails").innerHTML += '<li class="padded-list"><a href="#!trailpage/' + obj.pk + '">' + obj.name + '<a></li>'; });
-				}
-            },
-            error: function(err) {
-				console.log(err);
-			}
-        });
     });
 
     activity.onClose(function(self) {
@@ -88,9 +89,9 @@ app.on({page: 'trailpage', preventClose: true, content: 'trailpage.html', readyD
     activity.onCreate(function() {
 		trailid = window.location.hash.split("/")[1];
 		if(trailid == null) { trailid = "1" }
-		var req = phonon.ajax({
+		var req = $.ajax({
             method: 'GET',
-            headers: {'Authorization': "Token " + window.localStorage.getItem("token")},
+            beforeSend: function(xhr){xhr.setRequestHeader('Authorization',"Token " + window.localStorage.getItem("token"));},
             url: 'https://hikeit.me/trail/' + trailid + '.json',
             crossDomain: true,
             dataType: 'json',
@@ -110,9 +111,9 @@ app.on({page: 'trailpage', preventClose: true, content: 'trailpage.html', readyD
     
     activity.onHashChanged(function(trailid) {
 		if(trailid == null) { trailid = "1" }
-		var req = phonon.ajax({
+		var req = $.ajax({
             method: 'GET',
-            headers: {'Authorization': "Token " + window.localStorage.getItem("token")},
+            beforeSend: function(xhr){xhr.setRequestHeader('Authorization',"Token " + window.localStorage.getItem("token"));},
             url: 'https://hikeit.me/trail/' + trailid + '.json',
             crossDomain: true,
             dataType: 'json',
@@ -132,8 +133,76 @@ app.start();
 
 function login() {
     // Get data ex: var value = window.localStorage.getItem("key");
-    window.localStorage.setItem("token", document.getElementById("token").value);
+    var user = document.getElementById("username").value;
+    var pass = document.getElementById("password").value;
+    
+    var req = $.ajax({
+		method: 'POST',
+        beforeSend: function(xhr){xhr.setRequestHeader('Authorization',"Basic " + window.btoa(user + ":" + pass));},
+        data: {"username": user, "password": pass},
+		url: 'https://hikeit.me/user/token/',
+		crossDomain: true,
+		dataType: 'json',
+		success: function(res) {
+			window.localStorage.setItem("token", res.token);
+		}
+	});
     location.href = "#!pagetwo"
+}
+
+function search(name) {
+	document.getElementById("trails").innerHTML = "";
+	var req = $.ajax({
+		method: 'GET',
+        beforeSend: function(xhr){xhr.setRequestHeader('Authorization',"Token " + window.localStorage.getItem("token"));},
+		url: 'https://hikeit.me/search/name/' + name + '.json',
+		crossDomain: true,
+		dataType: 'json',
+		success: function(res) {
+			if(res.length == 0) {
+				document.getElementById("trails").innerHTML = '<li class="padded-list">No trails found for ' + name + '. Try searching at the top.</li>';
+			} else {
+				res.forEach(function(obj) { document.getElementById("trails").innerHTML += '<li class="padded-list"><a href="#!trailpage/' + obj.pk + '">' + obj.name + '<a></li>'; });
+			}
+		},
+		error: function(err) {
+			console.log(err);
+		}
+	});
+}
+
+function likeTrail() {
+	trailid = window.location.hash.split("/")[1];
+	var req = $.ajax({
+		method: 'GET',
+        beforeSend: function(xhr){xhr.setRequestHeader('Authorization',"Token " + window.localStorage.getItem("token"));},
+		url: 'https://hikeit.me/trail/' + trailid + '/like.json',
+		crossDomain: true,
+		success: function(res) {
+			if(res.text == "already liked" || res.text == "auth invalid") {
+				phonon.notif('You cannot like this trail', 3000, false);
+			} else {
+				var req = $.ajax({
+					method: 'GET',
+					beforeSend: function(xhr){xhr.setRequestHeader('Authorization',"Token " + window.localStorage.getItem("token"));},
+					url: 'https://hikeit.me/trail/' + trailid + '.json',
+					crossDomain: true,
+					dataType: 'json',
+					success: function(res) {
+						document.getElementById("trailinfo").innerHTML = '<li class="padded-list"><b>Name: </b>' + res.name + '</li>';
+						document.getElementById("trailinfo").innerHTML += '<li class="padded-list"><b>Difficulty: </b>' + res.difficulty + '</li>';
+						document.getElementById("trailinfo").innerHTML += '<li class="padded-list"><b>Distance: </b>' + res.distance + '</li>';
+						document.getElementById("trailinfo").innerHTML += '<li class="padded-list"><b>Location: </b>' + res.location + '</li>';
+						document.getElementById("trailinfo").innerHTML += '<li class="padded-list"><b>Description: </b>' + res.description + '</li>';
+					}
+				});
+				phonon.notif('Trail liked successfully', 3000, false);
+			}
+		},
+		error: function(err) {
+			console.log(err);
+		}
+	});
 }
 
 function closest(elem, selector) {

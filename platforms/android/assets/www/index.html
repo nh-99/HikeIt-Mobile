@@ -6,6 +6,7 @@
         <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
 
         <link rel="stylesheet" href="./css/phonon.css" />
+        <link rel="stylesheet" href="./css/components/preloaders.min.css">
         <title>HikeIt</title>
     </head>
     <body>
@@ -28,7 +29,8 @@
                 </div>
             </header>
             <div class="content padded-full">
-                <input id="token" type="text" placeholder="Token">
+                <input id="username" type="text" placeholder="Username">
+                <input id="password" type="password" placeholder="Password">
                 <button class="btn fit-parent primary" onclick="login();">Login</button>
             </div>
         </home>
@@ -40,6 +42,8 @@
 
         <!-- scripts -->
         <script src="./js/phonon.js"></script>
+        <script src="./js/components/preloaders.min.js"></script>
+        <script src="./js/jquery.min.js"></script>
 
         <!-- our app config -->
         <script src="./js/index.js"></script>
