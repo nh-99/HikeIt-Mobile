@@ -103,6 +103,7 @@ app.on({page: 'trailpage', preventClose: true, content: 'trailpage.html', readyD
                 document.getElementById("trailinfo").innerHTML += '<li class="padded-list"><b>Distance: </b>' + res.distance + '</li>';
                 document.getElementById("trailinfo").innerHTML += '<li class="padded-list"><b>Location: </b>' + res.location + '</li>';
                 document.getElementById("trailinfo").innerHTML += '<li class="padded-list"><b>Description: </b>' + res.description + '</li>';
+                document.getElementById("trailinfo").innerHTML += '<li class="padded-list"><b>Likes: </b>' + res.likes + '</li>';
             }
         });
     });
