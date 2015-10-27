@@ -24,6 +24,8 @@ app.on({page: 'home', preventClose: false, content: null}, function(activity) {
 	});
 });
 
+app.on({page: 'registration', preventClose: true, content: 'registration.html'});
+
 /**
  * However, on the second page, we want to define the activity scope.
  * [1] On the create callback, we add tap events on buttons. The OnCreate callback is called once.
@@ -148,6 +150,24 @@ function login() {
 		}
 	});
     location.href = "#!pagetwo"
+}
+
+function register() {
+    // Get data ex: var value = window.localStorage.getItem("key");
+    var user = document.getElementById("username-reg").value;
+    var email = document.getElementById("email-reg").value;
+    var pass = document.getElementById("password-reg").value;
+    
+    var req = $.ajax({
+		method: 'POST',
+        data: {"username": user, "email": email, "password": pass},
+		url: 'https://hikeit.me/user/register.json',
+		crossDomain: true,
+		dataType: 'json',
+		success: function(res) {
+			phonon.notif('Please check your email for a confirmation link', 3000, false);
+		},
+	});
 }
 
 function search(name) {
