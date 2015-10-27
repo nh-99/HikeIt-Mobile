@@ -167,6 +167,7 @@ function register() {
 		dataType: 'json',
 		success: function(res) {
 			phonon.notif('Please check your email for a confirmation link', 3000, false);
+			location.href = "#!home";
 		},
 	});
 }
