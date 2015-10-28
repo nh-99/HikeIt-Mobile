@@ -8,7 +8,6 @@ phonon.options({
     i18n: null // for this example, we do not use internationalization
 });
 
-
 var app = phonon.navigator();
 
 /**
@@ -19,6 +18,7 @@ var app = phonon.navigator();
 app.on({page: 'home', preventClose: false, content: null}, function(activity) {
 	activity.onCreate(function() {
 		if(window.localStorage.getItem("token") != null) {
+			document.getElementById("index-content").innerHTML = "<p>Welcome back!</p>";
 			phonon.navigator().changePage('pagetwo');
 		}
 	});
@@ -58,8 +58,10 @@ app.on({page: 'pagetwo', preventClose: true, content: 'pagetwo.html', readyDelay
 				dataType: 'json',
 				success: function(res) {
 					if(res.length == 0) {
+						document.getElementById("trail-prog").remove();
 						document.getElementById("trails").innerHTML += '<li class="padded-list">No trails found in your area. Try searching at the top.</li>';
 					} else {
+						document.getElementById("trail-prog").remove();
 						res.forEach(function(obj) { document.getElementById("trails").innerHTML += '<li class="padded-list"><a href="#!trailpage/' + obj.pk + '">' + obj.name + '<a></li>'; });
 					}
 				},
@@ -79,7 +81,6 @@ app.on({page: 'pagetwo', preventClose: true, content: 'pagetwo.html', readyDelay
     });
 
     activity.onClose(function(self) {
-		self.close();
     });
 });
 
@@ -174,6 +175,7 @@ function register() {
 
 function search(name) {
 	document.getElementById("trails").innerHTML = "";
+	document.getElementById("search-content").innerHTML += '<div id="trail-prog" class="circle-progress active"><div class="spinner"></div></div>';
 	var req = $.ajax({
 		method: 'GET',
         beforeSend: function(xhr){xhr.setRequestHeader('Authorization',"Token " + window.localStorage.getItem("token"));},
@@ -182,8 +184,10 @@ function search(name) {
 		dataType: 'json',
 		success: function(res) {
 			if(res.length == 0) {
+				document.getElementById("trail-prog").remove();
 				document.getElementById("trails").innerHTML = '<li class="padded-list">No trails found for ' + name + '. Try searching at the top.</li>';
 			} else {
+				document.getElementById("trail-prog").remove();
 				res.forEach(function(obj) { document.getElementById("trails").innerHTML += '<li class="padded-list"><a href="#!trailpage/' + obj.pk + '">' + obj.name + '<a></li>'; });
 			}
 		},
@@ -239,4 +243,15 @@ function closest(elem, selector) {
         }
     }
     return false;
+}
+
+Element.prototype.remove = function() {
+    this.parentElement.removeChild(this);
+}
+NodeList.prototype.remove = HTMLCollection.prototype.remove = function() {
+    for(var i = this.length - 1; i >= 0; i--) {
+        if(this[i] && this[i].parentElement) {
+            this[i].parentElement.removeChild(this[i]);
+        }
+    }
 }
