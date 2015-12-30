@@ -59,10 +59,10 @@ app.on({page: 'pagetwo', preventClose: true, content: 'pagetwo.html', readyDelay
 				success: function(res) {
 					if(res.length == 0) {
 						document.getElementById("trail-prog").remove();
-						document.getElementById("trails").innerHTML += '<li class="padded-list">No trails found in your area. Try searching at the top.</li>';
+						document.getElementById("trails").innerHTML += '<li><p class="padded-list">No trails found in your area. Try searching at the top.</p></li>';
 					} else {
 						document.getElementById("trail-prog").remove();
-						res.forEach(function(obj) { document.getElementById("trails").innerHTML += '<li class="padded-list"><a href="#!trailpage/' + obj.pk + '">' + obj.name + '<a></li>'; });
+						res.forEach(function(obj) { document.getElementById("trails").innerHTML += '<li class="padded-list"><a class="padded-list" href="#!trailpage/' + obj.pk + '">' + obj.name + '<a></li>'; });
 					}
 				},
 				error: function(err) {
@@ -188,10 +188,11 @@ function search(name) {
 				document.getElementById("trails").innerHTML = '<li class="padded-list">No trails found for ' + name + '. Try searching at the top.</li>';
 			} else {
 				document.getElementById("trail-prog").remove();
-				res.forEach(function(obj) { document.getElementById("trails").innerHTML += '<li class="padded-list"><a href="#!trailpage/' + obj.pk + '">' + obj.name + '<a></li>'; });
+				res.forEach(function(obj) { document.getElementById("trails").innerHTML += '<li><a class="padded-list" href="#!trailpage/' + obj.pk + '">' + obj.name + '</a></li>'; });
 			}
 		},
 		error: function(err) {
+            document.getElementById("trail-prog").remove();
 			console.log(err);
 		}
 	});
