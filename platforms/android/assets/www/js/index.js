@@ -1,12 +1,24 @@
-phonon.options({
-    navigator: {
-        defaultPage: 'home',
-        animatePages: true,
-        enableBrowserBackButton: true,
-        templateRootDirectory: './tpl'
-    },
-    i18n: null // for this example, we do not use internationalization
-});
+if(window.localStorage.getItem("token") == null) {
+    phonon.options({
+        navigator: {
+            defaultPage: 'home',
+            animatePages: true,
+            enableBrowserBackButton: true,
+            templateRootDirectory: './tpl'
+        },
+        i18n: null // for this example, we do not use internationalization
+    });
+} else {
+    phonon.options({
+        navigator: {
+            defaultPage: 'pagetwo',
+            animatePages: true,
+            enableBrowserBackButton: true,
+            templateRootDirectory: './tpl'
+        },
+        i18n: null // for this example, we do not use internationalization
+    });
+}
 
 var app = phonon.navigator();
 
@@ -35,8 +47,6 @@ app.on({page: 'registration', preventClose: true, content: 'registration.html'})
  * between the OnCreate and the OnReady callbacks
 */
 app.on({page: 'pagetwo', preventClose: true, content: 'pagetwo.html', readyDelay: 1}, function(activity) {
-	
-
     var onAction = function(evt) {
 		var target = evt.target;
 		search(document.getElementById("searchinput").value);
