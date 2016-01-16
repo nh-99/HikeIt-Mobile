@@ -189,7 +189,7 @@ function search(name) {
 	var req = $.ajax({
 		method: 'GET',
         beforeSend: function(xhr){xhr.setRequestHeader('Authorization',"Token " + window.localStorage.getItem("token"));},
-		url: 'https://hikeit.me/search/name/' + name + '.json',
+		url: 'https://hikeit.me/search/' + name + '.json',
 		crossDomain: true,
 		dataType: 'json',
 		success: function(res) {
@@ -203,6 +203,7 @@ function search(name) {
 		},
 		error: function(err) {
             document.getElementById("trail-prog").remove();
+            document.getElementById("trails").innerHTML = '<li class="padded-list">There was an error with your request</li>';
 			console.log(err);
 		}
 	});
