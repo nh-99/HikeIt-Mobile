@@ -22,11 +22,6 @@ if(window.localStorage.getItem("token") == null) {
 
 var app = phonon.navigator();
 
-/**
- * The activity scope is not mandatory.
- * For the home page, we do not need to perform actions during
- * page events such as onCreate, onReady, etc
-*/
 app.on({page: 'home', preventClose: false, content: null}, function(activity) {
 	activity.onCreate(function() {
 		if(window.localStorage.getItem("token") != null) {
@@ -38,19 +33,20 @@ app.on({page: 'home', preventClose: false, content: null}, function(activity) {
 
 app.on({page: 'registration', preventClose: true, content: 'registration.html'});
 
-/**
- * However, on the second page, we want to define the activity scope.
- * [1] On the create callback, we add tap events on buttons. The OnCreate callback is called once.
- * [2] If the user does not tap on buttons, we cancel the page transition. preventClose => true
- * [3] The OnReady callback is called every time the user comes on this page,
- * here we did not implement it, but if you do, you can use readyDelay to add a small delay
- * between the OnCreate and the OnReady callbacks
-*/
 app.on({page: 'pagetwo', preventClose: true, content: 'pagetwo.html', readyDelay: 1}, function(activity) {
     var onAction = function(evt) {
 		var target = evt.target;
-		search(document.getElementById("searchinput").value);
+		search();
     };
+    
+    document.getElementById('searchinput').onkeypress = function(e){
+    if (!e) e = window.event;
+    var keyCode = e.keyCode || e.which;
+    if (keyCode == '13'){
+      search();
+      return false;
+    }
+  }
 
     activity.onCreate(function() {
 		document.querySelector('#search').on('tap', onAction);
@@ -142,7 +138,6 @@ app.on({page: 'trailpage', preventClose: true, content: 'trailpage.html', readyD
     });
 });
 
-// Let's go!
 app.start();
 
 function login() {
@@ -183,7 +178,8 @@ function register() {
 	});
 }
 
-function search(name) {
+function search() {
+	var name = document.getElementById("searchinput").value;
 	document.getElementById("trails").innerHTML = "";
 	document.getElementById("search-content").innerHTML += '<div id="trail-prog" class="circle-progress active"><div class="spinner"></div></div>';
 	var req = $.ajax({

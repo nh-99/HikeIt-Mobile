@@ -36,8 +36,17 @@ app.on({page: 'registration', preventClose: true, content: 'registration.html'})
 app.on({page: 'pagetwo', preventClose: true, content: 'pagetwo.html', readyDelay: 1}, function(activity) {
     var onAction = function(evt) {
 		var target = evt.target;
-		search(document.getElementById("searchinput").value);
+		search();
     };
+    
+    document.getElementById('searchinput').onkeypress = function(e){
+    if (!e) e = window.event;
+    var keyCode = e.keyCode || e.which;
+    if (keyCode == '13'){
+      search();
+      return false;
+    }
+  }
 
     activity.onCreate(function() {
 		document.querySelector('#search').on('tap', onAction);
@@ -169,7 +178,8 @@ function register() {
 	});
 }
 
-function search(name) {
+function search() {
+	var name = document.getElementById("searchinput").value;
 	document.getElementById("trails").innerHTML = "";
 	document.getElementById("search-content").innerHTML += '<div id="trail-prog" class="circle-progress active"><div class="spinner"></div></div>';
 	var req = $.ajax({
