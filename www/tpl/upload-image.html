@@ -4,66 +4,13 @@
             <button class="btn pull-left icon icon-arrow-back" data-navigation="$previous-page"></button>
             <h1 class="title">Trail Image Upload</h1>
         </div>
-        <script type="text/javascript" charset="utf-8">
- 
-        // Wait for PhoneGap to load
-        document.addEventListener("deviceready", onDeviceReady, false);
- 
-        // PhoneGap is ready
-        function onDeviceReady() {
- 		// Do cool things here...
-        }
- 
-        function getImage() {
-            // Retrieve image file location from specified source
-            navigator.camera.getPicture(uploadPhoto, function(message) {
-			alert('get picture failed');
-		},{
-			quality: 50, 
-			destinationType: navigator.camera.DestinationType.FILE_URI,
-			sourceType: navigator.camera.PictureSourceType.PHOTOLIBRARY
-		}
-            );
- 
-        }
- 
-        function uploadPhoto(imageURI) {
-	    var id = 1; //TODO: Grab the URL args for the ID
-            var options = new FileUploadOptions();
-            options.fileKey="file";
-            options.fileName=imageURI.substr(imageURI.lastIndexOf('/')+1);
-            options.mimeType="image/jpeg";
- 
-            var params = new Object();
-            params.value1 = "test";
-            params.value2 = "param";
- 
-            options.params = params;
-            options.chunkedMode = false;
- 
-            var ft = new FileTransfer();
-            ft.upload(imageURI, "https://hikeit.me/trail/" + id + "/upload/", win, fail, options);
-        }
- 
-        function win(r) {
-            console.log("Code = " + r.responseCode);
-            console.log("Response = " + r.response);
-            console.log("Sent = " + r.bytesSent);
-            alert(r.response);
-        }
- 
-        function fail(error) {
-            alert("An error has occurred: Code = " = error.code);
-        }
- 
-        </script>
     </header>
 
     <div class="content padded-full">
 		<br>
 		<h2>Trails</h2>
 		<ul id="trails" class="list">
-		    <button onclick="getImage();">Upload a Photo</button>
+		    <button onclick="uploadPhoto();">Upload a Photo</button>
 		</ul>
     </div>
 </uploadimage>

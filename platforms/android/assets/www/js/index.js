@@ -113,6 +113,7 @@ app.on({page: 'trailpage', preventClose: true, content: 'trailpage.html', readyD
                 document.getElementById("trailinfo").innerHTML += '<li class="padded-list"><b>Likes: </b>' + res.likes + '</li>';
             }
         });
+	document.getElementById("main-body").innerHTML += '<button class="floating-action padded-full icon active primary-green"><a href="#!uploadimage/' + trailid + '"><i class="material-icons">image</i></a>  </button>';
     });
 
     activity.onClose(function(self) {
@@ -135,6 +136,7 @@ app.on({page: 'trailpage', preventClose: true, content: 'trailpage.html', readyD
                 document.getElementById("trailinfo").innerHTML += '<li class="padded-list"><b>Description: </b>' + res.description + '</li>';
             }
         });
+	document.getElementById("main-body").innerHTML += '<button class="floating-action padded-full icon active primary-green"><a href="#!uploadimage/' + trailid + '"><i class="material-icons">image</i></a>  </button>';
     });
 });
 
@@ -142,15 +144,12 @@ app.on({page: 'uploadimage', preventClose: true, content: 'upload-image.html', r
     var trailidUpload = null;
 
     activity.onCreate(function() {
-	    trailidUpload = window.location.hash.split("/")[1];
     });
 
     activity.onClose(function(self) {
-	    location.href = "#!trailpage/" + trailidUpload;
     });
     
     activity.onHashChanged(function(trailid) {
-	    if(trailidUpload == null) { trailidUpload = "1" }
     });
 });
 
@@ -278,4 +277,42 @@ NodeList.prototype.remove = HTMLCollection.prototype.remove = function() {
             this[i].parentElement.removeChild(this[i]);
         }
     }
+}
+
+
+function uploadFromGallery() {
+
+    // Retrieve image file location from specified source
+    navigator.camera.getPicture(uploadPhoto,
+                                function(message) { alert('get picture failed'); },
+                                { quality: 50, 
+                                destinationType: navigator.camera.DestinationType.FILE_URI,
+                                sourceType: navigator.camera.PictureSourceType.PHOTOLIBRARY }
+                                );
+
+}
+
+function uploadPhoto(imageURI) {
+    var id = window.location.hash.split("/")[1];
+    if(id == null) { id = "1" }
+    var options = new FileUploadOptions();
+    options.fileKey="file";
+    options.fileName=imageURI.substr(imageURI.lastIndexOf('/')+1)+'.png';
+    options.mimeType="image/jpeg";
+    options.headers = {'Authorization',"Token " + window.localStorage.getItem("token"))};
+
+    var ft = new FileTransfer();
+    ft.upload(imageURI, encodeURI("https://hikeit.me/trail/" + id + "/upload/"), win, fail, options);
+}
+
+function win(r) {
+    console.log("Code = " + r.responseCode);
+    console.log("Response = " + r.response);
+    console.log("Sent = " + r.bytesSent);
+}
+
+function fail(error) {
+    alert("An error has occurred: Code = " + error.code);
+    console.log("upload error source " + error.source);
+    console.log("upload error target " + error.target);
 }
