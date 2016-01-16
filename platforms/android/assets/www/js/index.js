@@ -138,6 +138,22 @@ app.on({page: 'trailpage', preventClose: true, content: 'trailpage.html', readyD
     });
 });
 
+app.on({page: 'uploadimage', preventClose: true, content: 'upload-image.html', readyDelay: 1}, function(activity) {
+    var trailidUpload = null;
+
+    activity.onCreate(function() {
+	    trailidUpload = window.location.hash.split("/")[1];
+    });
+
+    activity.onClose(function(self) {
+	    location.href = "#!trailpage/" + trailidUpload;
+    });
+    
+    activity.onHashChanged(function(trailid) {
+	    if(trailidUpload == null) { trailidUpload = "1" }
+    });
+});
+
 app.start();
 
 function login() {
